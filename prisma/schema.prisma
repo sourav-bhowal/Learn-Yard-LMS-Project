@@ -1,0 +1,54 @@
+// PRISMA CLIENT
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
+}
+
+// DATABASE CREDENTIALS
+datasource db {
+  provider = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
+
+// MODEL COURSE
+model Course {
+  id          String       @id @default(cuid())
+  userId      String
+  title       String       @db.Text
+  description String?      @db.Text
+  image       String?      @db.Text
+  price       Float?
+  isPublished Boolean      @default(false)
+  categoryId  String?
+  category    Category?    @relation(fields: [categoryId], references: [id])
+  attachments Attachment[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@map("course")
+}
+
+// MODEL CATEGORY
+model Category {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  courses   Course[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("category")
+}
+
+// MODEL ATTACHMENT
+model Attachment {
+  id        String   @id @default(cuid())
+  name      String
+  url       String   @db.Text
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("attachment")
+}
