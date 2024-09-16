@@ -13,21 +13,28 @@ import { Loader2, Pencil } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { editDescription } from "./actions";
+import { editCategory, editDescription } from "./actions";
 import { useRouter } from "next/navigation";
 import { Textarea } from "@/components/ui/textarea";
-import { createNewCourseDescriptionSchema } from "@/validations/new-course";
+import {
+  createNewCourseCategorySchema,
+} from "@/validations/new-course";
+import { Combobox } from "@/components/ui/combobox";
 
 // INTERFACE FOR TITLE FORM
-interface DescriptionFormProps {
+interface CategoryFormProps {
   initialData: {
     id: string;
-    description: string | null;
+    categoryId: string | null;
   };
+  options: {
+    label: string;
+    value: string;
+  }[];
 }
 
 // TITLE FORM COMPONENT
-export default function DescriptionForm({ initialData }: DescriptionFormProps) {
+export default function CategoryForm({ initialData, options }: CategoryFormProps) {
   // EDITTING STATE
   const [isEditting, setIsEditting] = useState(false);
 
@@ -38,22 +45,25 @@ export default function DescriptionForm({ initialData }: DescriptionFormProps) {
   const router = useRouter();
 
   // FORM
-  const form = useForm<z.infer<typeof createNewCourseDescriptionSchema>>({
-    resolver: zodResolver(createNewCourseDescriptionSchema),
+  const form = useForm<z.infer<typeof createNewCourseCategorySchema>>({
+    resolver: zodResolver(createNewCourseCategorySchema),
     defaultValues: {
-      description: initialData.description || "",
+      categoryId: initialData.categoryId || "",
     },
   });
 
   // SUBMIT STATE
   const { isSubmitting, isValid } = form.formState;
 
+  // SELECT OPTIONS FOR FORM
+  const selectOptions = options.find((option) => option.value === initialData.categoryId);
+
   // SUBMIT FUNCTION
   async function onSubmit(
-    inputValues: z.infer<typeof createNewCourseDescriptionSchema>
+    inputValues: z.infer<typeof createNewCourseCategorySchema>
   ) {
     // SEND REQ TO EDIT TITLE
-    const response = await editDescription(inputValues, initialData.id);
+    const response = await editCategory(inputValues, initialData.id);
     // IF ERROR
     if ("error" in response) {
       toast({
@@ -65,7 +75,7 @@ export default function DescriptionForm({ initialData }: DescriptionFormProps) {
     // IF SUCCESS
     else {
       toast({
-        description: "Course description updated successfully",
+        description: "Course category updated successfully",
       });
       setIsEditting(false);
       router.refresh();
@@ -76,7 +86,7 @@ export default function DescriptionForm({ initialData }: DescriptionFormProps) {
   return (
     <div className="mt-6 border bg-slate-300 dark:bg-primary/10 p-4 rounded-md">
       <div className="font-medium flex items-center justify-between">
-        Course Description
+        Course Category
         <Button
           variant={"ghost"}
           disabled={isSubmitting}
@@ -87,17 +97,17 @@ export default function DescriptionForm({ initialData }: DescriptionFormProps) {
           ) : (
             <>
               <Pencil className="w-4 h-4 mr-2" />
-              Edit Description
+              Edit Category
             </>
           )}
         </Button>
       </div>
       {/* FORM EDIT */}
       {!isEditting ? (
-        initialData.description ? (
-          <p className="mt-4 text-sm">{initialData.description}</p>
+        initialData.categoryId ? (
+          <p className="mt-4 text-sm">{selectOptions?.label}</p>
         ) : (
-          <p className="mt-4 text-sm text-slate-500">No description</p>
+          <p className="mt-4 text-sm text-slate-500">No category</p>
         )
       ) : (
         <Form {...form}>
@@ -107,16 +117,13 @@ export default function DescriptionForm({ initialData }: DescriptionFormProps) {
           >
             <FormField
               control={form.control}
-              name="description"
+              name="categoryId"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Textarea
-                      placeholder="ex: Web Development"
-                      disabled={isSubmitting}
-                      {...field}
-                      className="bg-slate-100 dark:bg-primary/10"
-                    />
+                    <Combobox 
+                    options={options}
+                    {...field}/>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

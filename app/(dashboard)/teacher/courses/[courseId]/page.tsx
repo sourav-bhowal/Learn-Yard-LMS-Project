@@ -5,6 +5,8 @@ import { LayoutDashboard } from "lucide-react";
 import { redirect } from "next/navigation";
 import TitleForm from "./_components/TitleForm";
 import DescriptionForm from "./_components/DescriptionForm";
+import ImageForm from "./_components/ImageForm";
+import CategoryForm from "./_components/CategoryForm";
 
 // COURSE PAGE
 export default async function CoursePage({
@@ -22,6 +24,13 @@ export default async function CoursePage({
   const course = await prisma.course.findUnique({
     where: {
       id: params.courseId,
+    },
+  });
+
+  // FETCH CAtegories
+  const categories = await prisma.category.findMany({
+    orderBy: {
+      name: "asc",
     },
   });
 
@@ -65,7 +74,16 @@ export default async function CoursePage({
           {/* TITLE FORM */}
           <TitleForm initialData={course} />
           {/* DESCRIPTION FORM */}
-          <DescriptionForm initialData={{ ...course, description: course.description ?? "" }} />
+          <DescriptionForm initialData={course} />
+          {/* IMAGE FORM */}
+          <ImageForm initialData={course}/>
+          {/* CATEGORY FORM */}
+          <CategoryForm initialData={course} options={
+            categories.map((category) => ({
+              label: category.name,
+              value: category.id,
+            }))
+          } />
         </div>
       </div>
     </main>

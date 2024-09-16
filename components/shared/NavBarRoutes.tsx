@@ -1,14 +1,16 @@
 "use client";
-import { UserButton } from "@clerk/nextjs";
+import { UserButton, useUser } from "@clerk/nextjs";
 import { usePathname } from "next/navigation";
 import { Button } from "../ui/button";
-import { LogOut } from "lucide-react";
+import { LoaderCircle, LogOut } from "lucide-react";
 import Link from "next/link";
 
 // NAVBAR ROUTES COMPONENT
 export default function NavBarRoutes() {
   // PATHNAME
   const pathname = usePathname();
+
+  const { isLoaded } = useUser();
 
   // TEACHER PAGE
   const isTeacherPage = pathname?.startsWith("/teacher");
@@ -18,7 +20,7 @@ export default function NavBarRoutes() {
 
   // RETURNS
   return (
-    <div className="flex gap-x-2 ml-auto">
+    <div className="flex gap-x-2 ml-auto items-center">
       {/* TEACHER BUTTON */}
       {isTeacherPage || isPlayerPage ? (
         <Link href="/">
@@ -34,7 +36,11 @@ export default function NavBarRoutes() {
           </Button>
         </Link>
       )}
-      <UserButton />
+      {isLoaded ? (
+        <UserButton />
+      ) : (
+        <LoaderCircle className="h-6 w-6 animate-spin" />
+      )}
     </div>
   );
 }
