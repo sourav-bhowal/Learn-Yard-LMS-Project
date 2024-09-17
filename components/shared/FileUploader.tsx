@@ -20,7 +20,10 @@ export default function FileUploader({
     // UPLOAD DROPZONE
     <UploadDropzone
       endpoint={endpoint}
-      onClientUploadComplete={(res) => onChange(res[0]?.url)}
+      onClientUploadComplete={(res) => {
+        onChange(res[0]?.url);
+        console.log(res[0]?.url);
+      }}
       onUploadError={(error: Error) => {
         toast({
           description: error?.message,

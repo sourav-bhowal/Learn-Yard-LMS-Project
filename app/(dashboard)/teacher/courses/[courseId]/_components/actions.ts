@@ -4,6 +4,7 @@ import {
   createNewCourseCategorySchema,
   createNewCourseDescriptionSchema,
   createNewCourseImageSchema,
+  createNewCoursePriceSchema,
   createNewCourseTitleSchema,
 } from "@/validations/new-course";
 import { auth } from "@clerk/nextjs/server";
@@ -180,7 +181,6 @@ export async function editImage(
 }
 
 // EDIT CATEGORY ACTIONS
-// EDIT Description ACTIONS
 export async function editCategory(
   inputValues: {
     categoryId: string;
@@ -219,6 +219,61 @@ export async function editCategory(
         },
         data: {
           categoryId,
+        },
+      });
+      // RETURN SUCCESS
+      return { course: updatedCourse };
+    }
+    // RETURN ERROR IF USER ID DOES NOT MATCH
+    else {
+      return { error: "Unauthorized" };
+    }
+  } catch (error) {
+    // IF ERROR
+    console.log("[ERROR] createNewCourse: ", error);
+    return { error: "An unexpected error occurred. Please try again." };
+  }
+}
+
+// EDIT PRICE ACTIONS
+export async function editPrice(
+  inputValues: {
+    price: number;
+  },
+  courseId: string
+): Promise<{ error: string } | { course: Course }> {
+  try {
+    // GET USER ID
+    const { userId } = auth();
+
+    // IF USER ID NOT EXISTS
+    if (!userId) {
+      return { error: "Unauthorized" };
+    }
+
+    // VALIDATE POST VALUES
+    const { price } = createNewCoursePriceSchema.parse(inputValues);
+
+    // FIND COURSE
+    const course = await prisma.course.findUnique({
+      where: {
+        id: courseId,
+      },
+    });
+
+    // IF COURSE NOT FOUND
+    if (!course) {
+      return { error: "Course not found" };
+    }
+
+    // UPDATE COURSE IF USER ID MATCHES
+    if (course.userId === userId) {
+      const updatedCourse = await prisma.course.update({
+        where: {
+          id: courseId,
+        },
+        data: {
+          price,
         },
       });
       // RETURN SUCCESS

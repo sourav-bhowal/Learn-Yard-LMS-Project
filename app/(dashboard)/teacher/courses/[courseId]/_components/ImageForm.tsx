@@ -103,6 +103,7 @@ export default function ImageForm({ initialData }: ImageFormProps) {
                 onSubmit({
                   image: url,
                 });
+                console.log(url);
               }
             }}
           />

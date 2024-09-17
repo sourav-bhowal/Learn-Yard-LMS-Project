@@ -22,7 +22,6 @@ export const createNewCourseImageSchema = z.object({
   image: z
     .string()
     .min(1, { message: "Course Image is required" })
-    .max(500, { message: "Course Image is too long" }),
 });
 
 // NEW COURSE CATEGORY VALIDATION
@@ -31,4 +30,11 @@ export const createNewCourseCategorySchema = z.object({
     .string()
     .min(1, { message: "Course Category is required" })
     .max(50, { message: "Course Category is too long" }),
+})
+
+// NEW COURSE PRICE VALIDATION
+export const createNewCoursePriceSchema = z.object({
+  price: z
+    .coerce.number()
+    .min(1, { message: "Course Price is required" })
 })

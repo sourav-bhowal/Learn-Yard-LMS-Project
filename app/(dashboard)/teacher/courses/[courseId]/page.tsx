@@ -1,12 +1,13 @@
 import { IconBadge } from "@/components/shared/IconBadge";
 import { prisma } from "@/lib/prismaDB";
 import { auth } from "@clerk/nextjs/server";
-import { LayoutDashboard } from "lucide-react";
+import { CircleDollarSign, LayoutDashboard, ListChecks } from "lucide-react";
 import { redirect } from "next/navigation";
 import TitleForm from "./_components/TitleForm";
 import DescriptionForm from "./_components/DescriptionForm";
 import ImageForm from "./_components/ImageForm";
 import CategoryForm from "./_components/CategoryForm";
+import PriceForm from "./_components/PriceForm";
 
 // COURSE PAGE
 export default async function CoursePage({
@@ -76,14 +77,32 @@ export default async function CoursePage({
           {/* DESCRIPTION FORM */}
           <DescriptionForm initialData={course} />
           {/* IMAGE FORM */}
-          <ImageForm initialData={course}/>
+          <ImageForm initialData={course} />
           {/* CATEGORY FORM */}
-          <CategoryForm initialData={course} options={
-            categories.map((category) => ({
+          <CategoryForm
+            initialData={course}
+            options={categories.map((category) => ({
               label: category.name,
               value: category.id,
-            }))
-          } />
+            }))}
+          />
+        </div>
+        <div className="space-y-6">
+          <div>
+            <div className="flex items-center gap-x-2">
+              <IconBadge icon={ListChecks} />
+              <h2 className="text-xl">Course chapters</h2>
+            </div>
+            <div>TODO: Add chapters</div>
+          </div>
+          <div>
+            <div className="flex items-center gap-x-2">
+              <IconBadge icon={CircleDollarSign} />
+              <h2 className="text-xl">Pricing</h2>
+            </div>
+            {/* PRICE FORM */}
+            <PriceForm initialData={course} />
+          </div>
         </div>
       </div>
     </main>
